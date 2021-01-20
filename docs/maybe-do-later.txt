@@ -595,6 +595,57 @@ save the rebuilt post.
 [x_plat_offl_builds]
 Offline builds on various Linux distros, not just Debian 10?
 
+[bash2deno]
+Port scripts from Bash to Deno.
 
-[ty_v1] Things to fix before Ty v0.X —> v1.0.
- 
+
+[ty_v1] Things to fix before Ty stack version 1: 0.20NN.MM —> version 1.20NN.MM
+
+[release_channels][ty_v1] [mv_2_adm_docs]
+Kubernetes has release channels:
+  Rapid, Regular (the default), Stable — looks nice
+  (details: https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels).
+Talkyard can have those channels, plus an experimental Dev channel.
+A channel would be its own Git branch in the talkyard-versions repo:
+  tyce-0-dev, tyce-0-rapid, tyce-0-regular, tyce-0-stable.
+tyce-0-x means Talkyard, Community Edition, Tech Stack version 0 (see below), channel X.
+Currently there's just the master branch — which will be the same as tyce-0-regular.
+Version numbers can be like: TyCE.0.2021.NN(.PP), where 0 is the tech stack version,
+2021 is the year (Talkyard is a platform; then, calendar versioning
+makes more sense than semantic versioning) and NN is the release nr, starting at 01,
+whithin that year.
+And .PP is an optional patch number, starting at 01 (first patch).
+Hasn't been used this far — but later, e.g. for bug fixes to the -regular
+and -stable channels (where -stable is a medium term stable, or LTS long term stable
+releases, not yet decided. If some companies want new features only once
+a year or every 6 months, say.
+(But the tech stack version changes too infrequently: only about every 2-3+ years,
+and that's a bit too long with waiting for new features (in Ty's case),
+so not so good to use the stack version for LTS.)
+
+(2021.NN could instead have been 2021NN (with no dot) or just an ever increasing number —
+it's just that 2021.NN looks more nice, I think, and it's nice to see
+from which year a certain version is.)
+
+[tech_stack_vX][ty_v1] [mv_2_adm_docs]
+What's a tech stack version? It's a more rare & bigger upgrade that require
+the server root admin to read the docs to find out if s/he needs to do anything
+special. E.g. backup database, install new version of Ty on a new VPS,
+import backup. And update any load balancer or DNS config to point to the new VPS.
+Maybe you could look at this as a major version upgrade — but it's not really
+Talkyard itself that changes; instead, it's something "uninteresting",
+like the host OS or database major version or underlying container tech.
+And it's unrelated to externaly visible API compatibility.
+- Example 1: Maybe every 2nd year or so, one will need
+  to migrate to a new host OS (Debian releases new stable versions every 2nd year,
+  https://wiki.debian.org/DebianReleases).  And possibly upgrading to a new
+  major PostgreSQL version — they're supported for about 5 years
+  (https://www.postgresql.org/support/versioning/)
+  Then, a root admin might need to backup and restore to a new Ty installation
+  with the new Postgres version. (Major db version upgrades can be risky; a
+  backup and restore-to-new-installation might be safer than an in-place upgrade.)
+- Theoretical example 2: Changing Ty's tech stack from Docker-Compose to K8s
+  — then one would need to install from scratch in K8s, and import. That'd be a
+  tech stack version bump.
+- Example 3: The previous tech stack version can work as a LTS long time boring
+  stable version with primarily bug and security fixes and .PP (patch) version bumps.

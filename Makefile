@@ -110,7 +110,10 @@ print_help:
 
 
 DOCKER_REPOSITORY := \
-  $(shell sed -nr 's/DOCKER_REPOSITORY=([a-zA-Z0-9\._-]*).*/\1/p' .env)
+  $(shell sed -nr 's/^DOCKER_REPOSITORY=([a-zA-Z0-9\._-]*).*/\1/p' .env)
+
+RELEASE_CHANNEL_IN_FILE := \
+  $(shell sed -nr 's/^RELEASE_CHANNEL=([^#]*).*/\1/p' .env)
 
 TALKYARD_VERSION := \
   $(shell cat version.txt)
@@ -595,22 +598,39 @@ _print_push_git_tag_command:
 	@echo ""
 
 
+# [bash2deno]
+#
+# COULD require that  RELEASE_CHANNEL_IN_FILE = $(channel) ?
+#
 push-tag-to-git:
+	@echo  ;\
+	echo "Publishing to GitHub, version tag: $(tag)"  ;\
+	echo "     release channel (Git branch): $(channel)..."  ;\
+	echo
+
+	@# Or this needs to be in the same shell as the push?
 	@$(call die_unless_tag_specified, Push) ;\
-	
-	@echo
-	@echo "Publishing version tag $(tag) to GitHub..."
+	$(call die_unless_channel_specified, Push to) ;\
 	 
 	@set -e  ;\
 	cd modules/ed-versions/  ;\
 	git fetch  ;\
-	git checkout master  ;\
-	git merge --ff-only origin/master  ;\
+	git checkout $(channel)  ;\
+	git merge --ff-only origin/$(channel)  ;\
 	echo $(tag) >> version-tags.log  ;\
 	git add version-tags.log  ;\
 	git commit -m "Add $(tag)."  ;\
-	git push origin master
+	git push origin $(channel)  ;\
+	if [ "$(channel) = "master" ]; then \
+	  echo "Pushing to tyce-0-regular too, since channel is master:  [tyce0_reg_mast]"  ;\
+		git branch -f tyce-0-regular  ;\
+		git push origin tyce-0-regular  ;\
+	fi
 	
+	@# Note that this version might not be included in all release channels.
+	@# Example: If this new version includes some not-well-tested things — then,
+	@# we'd want to push it only to tyce-0-dev, fix bugs, and later, push a more
+	@# well tested version to tyce-0-regular.
 	@echo ""
 	@echo "Tagging the current Git revision with $(tag) ..."
 	
@@ -630,6 +650,15 @@ define die_unless_tag_specified
   if [ -z "$(tag)" ]; then \
     echo ;\
     echo "Error: $(1) which Docker image tag? Specify   tag=...  please."  ;\
+    echo ;\
+    exit 1  ;\
+  fi
+endef
+
+define die_unless_channel_specified
+  if [ -z "$(channel)" ]; then \
+    echo ;\
+    echo "Error: $(1) which release channel (Git branch)? Specify  channel=..."  ;\
     echo ;\
     exit 1  ;\
   fi
