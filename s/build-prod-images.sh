@@ -65,32 +65,6 @@ fi
 
 
 
-# Push to which release channel?
-# ----------------------
-
-RELCHAN=`sed -nr 's/^RELEASE_CHANNEL=([a-zA-Z0-9\._-]*).*/\1/p' .env`
-
-if [ -z "$RELCHAN" ]; then
-  echo
-  echo "RELEASE_CHANNEL line missing in .env file?"
-  echo
-  echo "To which ./modules/talkyard-versions branch do you want to push?"
-  echo "Edit the file .env in this directory, and specify a branch, e.g.:"
-  echo
-  echo "   RELEASE_CHANNEL=tyce-0-regular"
-  echo
-#   echo "You can start a test Docker registry at localhost:5000 like so:"
-#   echo
-#   echo "  sudo docker run -d -p 5000:5000 --name myregistry registry:2"
-#   echo
-#   echo "See docs/testing-images-in-vagrant.md, and"
-#   echo "https://docs.docker.com/registry/deploying/ for details."
-#   echo
-  die_if_in_script
-fi
-
-
-
 # Push to which Docker repository?
 # ----------------------
 
@@ -188,8 +162,8 @@ version_tag="$version-`git rev-parse --short HEAD`"  # also in Build.scala and g
 
 echo
 echo "About to build version:  $version_tag   (see version.txt),"
-echo "for pushing to Docker repository:  $REPO  (see .env),"
-echo "                 release channel:  $RELCHAN  (see .env)."
+echo "will push to Docker repository:  $REPO  (see .env),"
+echo "release channel:  tyce-v0-dev  (always)"
 echo
 # dupl code [bashutils]
 read -p "Continue [y/n]?  " choice
@@ -198,13 +172,6 @@ case "$choice" in
   n|N|no|No|NO ) echo "Bye then. Doing nothing."; exit 1;;
   * ) echo "What? Bye."; exit 1;;
 esac
-
-echo
-echo "Double check the release channel:  $RELCHAN"
-echo
-echo "Ok?  Press Enter to continue, or CTRL+C to exit"
-read -s -p ''
-echo
 
 
 
@@ -247,7 +214,7 @@ echo 'Buid completed.'
 echo "You can now tag and publish the images to the '$REPO' Docker repository:"
 echo ""
 echo "    make  tag-and-push-latest-images  tag=$version_tag"
-echo "    make  push-tag-to-git  tag=$version_tag  channel=$RELCHAN"
+echo "    make  push-tag-to-git  tag=$version_tag"
 echo "    s/bump-versions.sh"
 echo ""
 

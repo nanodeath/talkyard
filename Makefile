@@ -112,8 +112,11 @@ print_help:
 DOCKER_REPOSITORY := \
   $(shell sed -nr 's/^DOCKER_REPOSITORY=([a-zA-Z0-9\._-]*).*/\1/p' .env)
 
-RELEASE_CHANNEL_IN_FILE := \
-  $(shell sed -nr 's/^RELEASE_CHANNEL=([^#]*).*/\1/p' .env)
+# All new builds go into the -dev channel first, and might later get "promoted"
+# to the -rapid, -regular and -stable channels.
+# (Currently there's only -dev and -regular though.)
+DEV_RELEASE_CHANNEL := tyce-v0-dev
+DEV_RELEASE_CHANNEL_SUFFIX := -dev
 
 TALKYARD_VERSION := \
   $(shell cat version.txt)
@@ -599,13 +602,10 @@ _print_push_git_tag_command:
 
 
 # [bash2deno]
-#
-# COULD require that  RELEASE_CHANNEL_IN_FILE = $(channel) ?
-#
 push-tag-to-git:
 	@echo  ;\
 	echo "Publishing to GitHub, version tag: $(tag)"  ;\
-	echo "     release channel (Git branch): $(channel)..."  ;\
+	echo "     release channel (Git branch): $(DEV_RELEASE_CHANNEL)..."  ;\
 	echo
 
 	@# Or this needs to be in the same shell as the push?
@@ -615,27 +615,28 @@ push-tag-to-git:
 	@set -e  ;\
 	cd modules/ed-versions/  ;\
 	git fetch  ;\
-	git checkout $(channel)  ;\
-	git merge --ff-only origin/$(channel)  ;\
+	git checkout $(DEV_RELEASE_CHANNEL)  ;\
+	git merge --ff-only origin/$(DEV_RELEASE_CHANNEL)  ;\
 	echo $(tag) >> version-tags.log  ;\
 	git add version-tags.log  ;\
-	git commit -m "Add $(tag)."  ;\
-	git push origin $(channel)  ;\
-	if [ "$(channel) = "master" ]; then \
-	  echo "Pushing to tyce-0-regular too, since channel is master:  [tyce0_reg_mast]"  ;\
-		git branch -f tyce-0-regular  ;\
-		git push origin tyce-0-regular  ;\
-	fi
+	git commit -m "Add $(tag), channel $(DEV_RELEASE_CHANNEL)."  ;\
+	git push origin $(DEV_RELEASE_CHANNEL)
 	
 	@# Note that this version might not be included in all release channels.
 	@# Example: If this new version includes some not-well-tested things — then,
-	@# we'd want to push it only to tyce-0-dev, fix bugs, and later, push a more
-	@# well tested version to tyce-0-regular.
+	@# we'd want to push it only to tyce-v0-dev, fix bugs, and later, push a more
+	@# well tested version to tyce-v0-regular.
+	@# It's nice to see directly in the main repo, in which channels a
+	@# certain version has been included? Let's incl the cannel name in the tag.
+	@# Then, a version (Git revision) that got incl to many channels,
+	@# will get one tag per channel, e.g.:
+	@# tyce-v0.2021.04-abc123def-dev  and tyce-v0.2021.04-abc123def-regular,
+	@# i.e. same version nr and Git revision hash, but different channel suffix).
 	@echo ""
-	@echo "Tagging the current Git revision with $(tag) ..."
+	@echo "Tagging main repo with: tyce-$(tag)$(DEV_RELEASE_CHANNEL_SUFFIX) ..."
 	
-	@git tag $(tag)
-	@git push origin $(tag)
+	@git tag $(tag) tyce-$(tag)$(DEV_RELEASE_CHANNEL_SUFFIX)
+	@git push origin $(tag) tyce-$(tag)$(DEV_RELEASE_CHANNEL_SUFFIX)
 	
 	@echo ""
 	@echo "Done. Now, bump the version number:"
@@ -650,15 +651,6 @@ define die_unless_tag_specified
   if [ -z "$(tag)" ]; then \
     echo ;\
     echo "Error: $(1) which Docker image tag? Specify   tag=...  please."  ;\
-    echo ;\
-    exit 1  ;\
-  fi
-endef
-
-define die_unless_channel_specified
-  if [ -z "$(channel)" ]; then \
-    echo ;\
-    echo "Error: $(1) which release channel (Git branch)? Specify  channel=..."  ;\
     echo ;\
     exit 1  ;\
   fi
