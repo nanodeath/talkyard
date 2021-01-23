@@ -609,10 +609,10 @@ Kubernetes has release channels:
   (details: https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels).
 Talkyard can have those channels, plus an experimental Dev channel.
 A channel would be its own Git branch in the talkyard-versions repo:
-  tyce-0-dev, tyce-0-rapid, tyce-0-regular, tyce-0-stable.
-tyce-0-x means Talkyard, Community Edition, Tech Stack version 0 (see below), channel X.
-Currently there's just the master branch — which will be the same as tyce-0-regular.
-Version numbers can be like: TyCE.0.2021.NN(.PP), where 0 is the tech stack version,
+tyse-v0-dev, tyse-v0-rapid, tyse-v0-regular, tyse-v0-stable.
+tyse-v0-x means Talkyard, Standard Edition, Tech Stack version 0 (see below), channel X.
+Currently there's just the master branch — which will be the same as tyse-v0-regular.
+Version numbers can be like: TySE-v0.2021.NN(.PP), where 0 is the tech stack version,
 2021 is the year (Talkyard is a platform; then, calendar versioning
 makes more sense than semantic versioning) and NN is the release nr, starting at 01,
 whithin that year.
@@ -652,13 +652,13 @@ And it's unrelated to externaly visible API compatibility.
   tech stack version bump.
 - Example 3: The previous tech stack version can work as a LTS long time boring
   stable version with primarily bug and security fixes and .PP (patch) version bumps.
-So, channels:  'tyce-v0-dev'   'tyce-v0-regular'
+So, channels:  'tyse-v0-dev'   'tyse-v0-regular'
 and version number examples:
-  'tyce-v0.2021.04'     (release 4, yearr 2021)
-  'tyce-v0.2021.04.01'  (1st patch)
+  'tyse-v0.2021.04'     (release 4, year 2021)
+  'tyse-v0.2021.04.01'  (1st patch)
 and Git repo tags: (cahnnel name appended, since cannot have tags with the same
 name in different branches)
-  'tyce-v0.2021.04-dev'
-  'tyce-v0.2021.04.01-dev'
-  'tyce-v0.2021.04.01-regular'
+  'tyse-v0.2021.04-dev'
+  'tyse-v0.2021.04.01-dev'
+  'tyse-v0.2021.04.01-regular'
 

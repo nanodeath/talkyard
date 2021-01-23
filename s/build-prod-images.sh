@@ -163,7 +163,7 @@ version_tag="$version-`git rev-parse --short HEAD`"  # also in Build.scala and g
 echo
 echo "About to build version:  $version_tag   (see version.txt),"
 echo "will push to Docker repository:  $REPO  (see .env),"
-echo "release channel:  tyce-v0-dev  (always)"
+echo "release channel:  tyse-v0-dev  (always)"
 echo
 # dupl code [bashutils]
 read -p "Continue [y/n]?  " choice
