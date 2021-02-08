@@ -655,9 +655,8 @@ const LoginAndSignupSettings = createFactory({
           // Won't work with blog comments !
           // Maybe new category access permission? Visible to strangers,
           // if embedded? + error if not
-          help: r.span({}, "Require authentication to read content. Users must then login " +
-            "with ", r.i({}, "for example"), " password, or Google or Facebook or Single Sing-On " +
-            "— but anonymous access is disabled.",
+          help: r.span({}, "Require authentication to read content. Users must then log in " +
+            "using their password or Single Sign-On account — but anonymous access is disabled.",
              embCommentsBroken2),
           getter: (s: Settings) => s.userMustBeAuthenticated,
           update: (newSettings: Settings, target) => {
